@@ -13,6 +13,30 @@ Storage URLs. Firebase.js and its SDK remain in the project for now.
 
 ## Run locally
 
+Run `npm install` in the repository root to install concurrently. After installing
+frontend dependencies and configuring its `.env`, run from the repository root:
+
+```powershell
+npm run dev
+```
+
+This runs `docker compose up` and `npm start --prefix minimal-pairs-app` together.
+React runs on the host, outside Docker. Press Ctrl+C in this terminal to stop both
+commands. If either command exits, concurrently stops the other command too.
+To remove Docker containers and networks afterward:
+
+```powershell
+npm stop
+```
+
+`npm stop` (also available as `npm run dev:down`) runs only `docker compose down`, preserving database volumes. It does
+not directly stop React. If the Docker command from an active `dev` session exits
+as a result, concurrently also stops React; otherwise use Ctrl+C in the `dev`
+terminal. There is no process tracking or cross-terminal React stop mechanism.
+Node.js, npm, and Docker Compose are required.
+
+The separate startup commands remain available:
+
 ```powershell
 docker compose up -d --build
 cd minimal-pairs-app
