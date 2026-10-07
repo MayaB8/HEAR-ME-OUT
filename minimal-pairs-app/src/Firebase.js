@@ -1,29 +1,60 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set } from "firebase/database";
+import { getDatabase, ref, get, query, orderByChild, equalTo } from "firebase/database";
+import { getStorage, getDownloadURL, ref as sref } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-    authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.REACT_APP_FIREBASE_APP_ID,
-    databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+  apiKey: "AIzaSyBdpchf45b6z7_wEa-E3vO_fv0JuEwK1dw",
+  authDomain: "hear-me-out-785e2.firebaseapp.com",
+  projectId: "hear-me-out-785e2",
+  storageBucket: "hear-me-out-785e2.appspot.com",
+  messagingSenderId: "994012007554",
+  appId: "1:994012007554:web:35d88c91c2fcdbcd4bf89b",
+  databaseURL: "https://hear-me-out-785e2-default-rtdb.europe-west1.firebasedatabase.app",
 };
 
-export default function FirebaseLauncher() {
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const reference = ref(db, 'words');
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const storage = getStorage();
 
-    set (reference, {
-        
-    })
-    return (
-        // Initialize Firebase
+async function getWordsFromDB(soundType, positionInWord, soundPair) {
+  try {
+      const nodesQuery = query(ref(db, 'words/' + soundType), orderByChild('sound_type'), equalTo(soundType));
 
-        console.log(reference.key)
-    );
+      const snapshot = await get(nodesQuery);
+      let nodes = [];
+
+      snapshot.forEach((childSnapshot) => {
+      nodes.push(childSnapshot.val());
+    });
+
+    if (soundPair !== "הכל") {
+      nodes = nodes.filter(item => item.sound_pair === soundPair);
     }
+    if (positionInWord !== "הכל"){
+      nodes = nodes.filter(item => item.position_in_word === positionInWord);
+    }
+
+    return nodes;
+  } catch (error) {
+    console.error('Error querying nodes:', error);
+    return null;
+  }
+}
+
+// Function to download an image from Firebase Storage
+async function downloadImageFromStorage(imageUrl) {
+  try {
+    const ref = sref(storage, imageUrl);
+    const response = await getDownloadURL(ref);
+
+    return response;
+
+  } catch (error) {
+    console.error('Error downloading image:', error);
+    return null;
+  }
+}
+
+export { downloadImageFromStorage, getWordsFromDB };

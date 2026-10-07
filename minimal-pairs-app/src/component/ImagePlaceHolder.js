@@ -1,55 +1,94 @@
-import { Typography, Button, } from '@mui/material';
+import { Typography, Button } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-  
 import imgWhiteBg from './../images/buttons/imgBg.png';
-import imgGreenBg from './../images/buttons/imgGreenBg.png';
-import imgRedBg from './../images/buttons/imgRedBg.png';
 
 const useStyles = makeStyles(() => ({
-    imageButton: {
-      '&:hover': {
-        filter: 'drop-shadow(0px 0px 16px #68859A) brightness(1.1)',
-        backgroundColor: 'transparent !important',
-      }
+  container: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+    width: '350px',
+  },
+  imageButton: {
+    '&:hover': {
+      filter: 'drop-shadow(0px 0px 16px #68859A) brightness(1.1)',
+      backgroundColor: 'transparent',
     },
-    descriptionTypography:{
-      display: 'flex', justifyContent: 'center', width: '100%', marginRight: '50%', scale: '160%',
-      WebkitTextStroke: '1px', fontSize: 'x-large', WebkitTextStrokeColor: 'rgb(36 71 88)',
-      //'-webkit-text-stroke: 1px font-size: x-large -webkit-text-stroke-color: rgb(36 71 88)'
-    },
-    selectedImage:{
-      backgroundImage: `url(${imgWhiteBg})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'center', 
-      width: '330px', height: '330px', display: 'flex', alignItems: 'center', justifyContent: 'center' 
-    }
-  }));
-  
-function ImagePlaceHolder({
-innerImage,
-textColor,
-imageText,
-handleClick,
-}) {
-const classes = useStyles();
-const imageStyle = {
-    maxWidth: '60%',
-    maxHeight: '60%',
-  };
+    position: 'relative',
+  },
+  imageStyle: {
+    maxWidth: '230px',
+    maxHeight: '230px',
+    position: 'relative',
+  },
+  textContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    textAlign: 'center',
+    position: 'absolute',
+    bottom: -15,
+  },
+  text: {
+    fontWeight: 'bold',
+  },
+}));
 
-return (
-    <Button className={classes.imageButton} onClick={handleClick} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div className={classes.selectedImage} style={{ backgroundImage: `url(${imgWhiteBg})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'center', width: '340px', height: '340px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+function ImagePlaceHolder({
+  innerImage,
+  textColor,
+  imageText,
+  handleClick,
+  borderColor,
+  isInExercise,
+  externalImage,
+}) {
+  const classes = useStyles();
+
+  return (
+    <div className={classes.container} style={{ height: isInExercise ? '390px' : '260px' }}>
+      <Button
+        disableRipple
+        className={classes.imageButton}
+        onClick={handleClick}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          height: '90%',
+          width: '100%',
+        }}
+        disabled={externalImage != null}
+      >
         <img
-            src={innerImage}
-            alt="Right"
-            data-image="1"
-            style={imageStyle}
+          src={ externalImage == null ? imgWhiteBg : externalImage}
+          alt="Background"
+          style={{
+            width: isInExercise ? '100%' : '75%',
+            position: 'absolute',
+            filter: borderColor
+              ? `drop-shadow(2px 4px 6px ${borderColor})`
+              : undefined,
+          }}
         />
+        { externalImage == null && (
+          <img
+            src={innerImage}
+            alt={imageText}
+            data-image="1"
+            className={classes.imageStyle}
+          />
+        )}
+      </Button>
+
+      <div className={classes.textContainer}>
+          <Typography color={textColor} fontSize={isInExercise ? '50px' : '30px'} style={{ opacity: externalImage == null ? 1 : 0.8 }} className={classes.text}>
+            {imageText}
+          </Typography>
         </div>
-        <Typography color={textColor} style={{ marginTop: '-30px', fontSize: '200%', fontWeight: 'bold' }}>
-        {imageText}
-        </Typography>
-    </Button>
-);
+    </div>
+  );
 }
 
 export default ImagePlaceHolder;
