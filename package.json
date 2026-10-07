@@ -1,0 +1,13 @@
+{
+  "name": "hear-me-out",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently --kill-others \"docker compose up\" \"wait-on --timeout 60000 http-get://localhost:3001/api/health && npm start --prefix minimal-pairs-app\"",
+    "dev:down": "docker compose down",
+    "stop": "docker compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5",
+    "wait-on": "^9.5.1"
+  }
+}
