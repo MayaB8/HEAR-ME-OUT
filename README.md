@@ -13,14 +13,18 @@ Storage URLs. Firebase.js and its SDK remain in the project for now.
 
 ## Run locally
 
-Run `npm install` in the repository root to install concurrently. After installing
+Run `npm install` in the repository root to install the development tools. After installing
 frontend dependencies and configuring its `.env`, run from the repository root:
 
 ```powershell
 npm run dev
 ```
 
-This runs `docker compose up` and `npm start --prefix minimal-pairs-app` together.
+This starts `docker compose up`, waits for a successful GET response from
+`http://localhost:3001/api/health`, then runs `npm start --prefix minimal-pairs-app`.
+The health endpoint checks the Postgres connection. If it is not ready within
+60 seconds, startup fails and concurrently stops the Docker command. If the
+backend port changes, update the health URL in the root script as well.
 React runs on the host, outside Docker. Press Ctrl+C in this terminal to stop both
 commands. If either command exits, concurrently stops the other command too.
 To remove Docker containers and networks afterward:
