@@ -6,7 +6,40 @@ https://hear-me-out-785e2.web.app/
 
 # Import Firebase data into local Postgres
 
-The existing database must contain `minimal_pairs`, `words`, and
+The frontend is based on `yuval1414/HEAR-ME-OUT` branch `dev`, commit
+`21363516b1094b24a0dfef49fc519dd807981b38`. The frontend currently loads exercise
+data and media from Firebase, as in upstream `dev`. The Postgres backend and
+migration tooling remain available separately for future integration.
+
+## Run locally
+
+```powershell
+cd minimal-pairs-app
+npm ci
+npm start
+```
+
+React runs at http://localhost:3000 and uses Firebase without a local backend.
+
+## Run the optional Postgres backend
+
+From the repository root, run `docker compose up -d --build`.
+Check its database connection at http://localhost:3001/api/health.
+Fresh Postgres volumes create the schema from `backend/sql/schema.sql`; existing
+volumes and their imported data are preserved. Empty databases need the import below.
+To initialize tables on an existing empty volume, run from the repository root:
+
+```powershell
+Get-Content -Raw backend/sql/schema.sql | docker compose exec -T postgres psql -X -v ON_ERROR_STOP=1 -U hear_me_out_user -d hear_me_out
+```
+
+For a backend running outside Docker, copy `backend/.env.example` to `backend/.env`,
+then run `npm ci` and `npm start` from `backend`.
+
+The existing Firebase Hosting configuration can serve the Firebase frontend.
+It does not deploy the optional Postgres backend.
+
+The database must contain `minimal_pairs`, `words`, and
 `minimal_pair_words`, all empty. Start Postgres with `docker compose up -d postgres`.
 Run from the repository root (Node.js and Docker Compose are required):
 
