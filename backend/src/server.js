@@ -1,8 +1,13 @@
 const express = require('express');
+const cors = require('cors');
 const pool = require('./db');
 
 const app = express();
 app.disable('x-powered-by');
+app.use(cors({
+  origin: process.env.FRONTEND_ORIGIN || 'http://localhost:3000',
+  methods: ['GET'],
+}));
 app.use(express.json());
 
 app.get('/api/health', async (req, res) => {

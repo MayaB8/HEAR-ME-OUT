@@ -7,21 +7,27 @@ https://hear-me-out-785e2.web.app/
 # Import Firebase data into local Postgres
 
 The frontend is based on `yuval1414/HEAR-ME-OUT` branch `dev`, commit
-`21363516b1094b24a0dfef49fc519dd807981b38`. The frontend currently loads exercise
-data and media from Firebase, as in upstream `dev`. The Postgres backend and
-migration tooling remain available separately for future integration.
+`21363516b1094b24a0dfef49fc519dd807981b38`. The frontend loads exercise data from
+the Express API backed by Postgres. Images and recordings still use Firebase
+Storage URLs. Firebase.js and its SDK remain in the project for now.
 
 ## Run locally
 
 ```powershell
+docker compose up -d --build
 cd minimal-pairs-app
+Copy-Item .env.example .env
 npm ci
 npm start
 ```
 
-React runs at http://localhost:3000 and uses Firebase without a local backend.
+React runs at http://localhost:3000 and calls the backend at http://localhost:3001.
+On first setup, copy `.env.example` only if `.env` does not already exist. Set
+`REACT_APP_API_BASE_URL` in the frontend `.env` and restart React after changes.
+Backend CORS allows `http://localhost:3000` by default; set `FRONTEND_ORIGIN` in
+`backend/.env` for a native server, or in the root Compose environment for Docker.
 
-## Run the optional Postgres backend
+## Run the Postgres backend
 
 From the repository root, run `docker compose up -d --build`.
 Check its database connection at http://localhost:3001/api/health.
@@ -36,8 +42,9 @@ Get-Content -Raw backend/sql/schema.sql | docker compose exec -T postgres psql -
 For a backend running outside Docker, copy `backend/.env.example` to `backend/.env`,
 then run `npm ci` and `npm start` from `backend`.
 
-The existing Firebase Hosting configuration can serve the Firebase frontend.
-It does not deploy the optional Postgres backend.
+Firebase Hosting serves the static frontend only. Production also needs a deployed
+backend, `REACT_APP_API_BASE_URL` set to its HTTPS URL at build time, and
+`FRONTEND_ORIGIN` set to the frontend origin. This PR does not deploy the website.
 
 The database must contain `minimal_pairs`, `words`, and
 `minimal_pair_words`, all empty. Start Postgres with `docker compose up -d postgres`.

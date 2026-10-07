@@ -8,10 +8,10 @@ import nextBtn from './../images/buttons/leftArrowBlueBtn.png';
 import prevBtn from './../images/buttons/rightArrowBlueBtn.png';
 import returnSettingsBtn from './../images/buttons/leftArrowBtn.png';
 import ImagePlaceHolder from '../component/ImagePlaceHolder';
-import { getWordsFromDB, downloadImageFromStorage } from '../Firebase';
 import Confetti from 'react-confetti';
 import { randomReaction } from '../component/utils/Reaction';
 import { useNavigate } from 'react-router-dom';
+import { getMinimalPairs } from '../minimalPairsApi';
 
 function playAudio(voice) {
   if (!voice) return;
@@ -45,8 +45,8 @@ export default function ExercisePage() {
       try {
         if (!location.state?.category) throw new Error('בחרו הגדרות תרגול לפני תחילת התרגול.');
         const { category, placeInWord, letters } = location.state;
-        const pairs = await getWordsFromDB(category, placeInWord, letters);
-        if (!pairs) throw new Error('לא ניתן לטעון את התרגול מ־Firebase. נסו שוב מאוחר יותר.');
+        const pairs = await getMinimalPairs(category, letters, placeInWord);
+        if (!pairs) throw new Error('לא ניתן לטעון את התרגול מהשרת. נסו שוב מאוחר יותר.');
         if (!controller.signal.aborted) {
           setWords(pairs.map(pair => pair.words));
           setVoice(location.state.voice);
@@ -62,31 +62,35 @@ export default function ExercisePage() {
   }, [location.state]);
 
   useEffect(() => {
-    let active = true;
-    const getImageData = async () => {
-      const imagesData = await Promise.all(words.map(async (w) => {
+    const getImageData = () => {
+      const imagesData = words.map((w) => {
         const primaryId = Math.round(Math.random());
         return {
           image0: {
-            id: 0, src: await downloadImageFromStorage(w[0].photo_paths), description: w[0].word
+            id: 0, src: w[0].imageUrl, description: w[0].text
           },
           image1: {
-            id: 1, src: w[1].photo_paths, description: w[1].word
+            id: 1, src: w[1].imageUrl, description: w[1].text
           },
           primaryImg: {
             primaryId,
-            ManVoice: w[primaryId].man_sound_path,
-            WomanVoice: w[primaryId].woman_sound_path,
+            ManVoice: w[primaryId].maleAudioUrl,
+            WomanVoice: w[primaryId].femaleAudioUrl,
           }
         }
-      }));
-      if (active) setImages(imagesData);
+      });
+      setImages(imagesData);
     }
     if (words) {
       getImageData();
     }
-    return () => { active = false; };
   }, [words]);
+
+  useEffect(() => {
+    const firstWord = images?.[0]?.primaryImg;
+    if (!firstWord || !voice) return;
+    playAudio(voice === 'גבר' ? firstWord.ManVoice : firstWord.WomanVoice);
+  }, [images, voice]);
 
   useEffect(() => {
     if (!confetti) return;
