@@ -1,14 +1,71 @@
 const express = require('express');
 const cors = require('cors');
+const bcrypt = require('bcrypt');
 const pool = require('./db');
 
 const app = express();
 app.disable('x-powered-by');
 app.use(cors({
   origin: process.env.FRONTEND_ORIGIN || 'http://localhost:3000',
-  methods: ['GET'],
+  methods: ['GET', 'POST'],
 }));
 app.use(express.json());
+
+app.post('/api/users', async (req, res) => {
+  const { username, password } = req.body ?? {};
+  for (const [name, value] of Object.entries({ username, password })) {
+    if (typeof value !== 'string' || !value.trim()) {
+      return res.status(400).json({ error: `${name} must be a non-empty string.` });
+    }
+  }
+  const normalizedUsername = username.trim().toLowerCase();
+  // bcrypt only hashes the first 72 bytes; reject longer passwords to avoid truncation.
+  if (Buffer.byteLength(password, 'utf8') > 72) {
+    return res.status(400).json({ error: 'password must not exceed 72 bytes.' });
+  }
+
+  try {
+    const passwordHash = await bcrypt.hash(password, 12);
+    const { rows } = await pool.query(`
+      INSERT INTO users (username, password_hash)
+      VALUES ($1, $2)
+      RETURNING id, username, created_at
+    `, [normalizedUsername, passwordHash]);
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    if (error.code === '23505' && error.constraint === 'users_username_key') {
+      return res.status(409).json({ error: 'Username already exists.' });
+    }
+    console.error('User registration failed.');
+    res.status(500).json({ error: 'Unable to register user.' });
+  }
+});
+
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body ?? {};
+  for (const [name, value] of Object.entries({ username, password })) {
+    if (typeof value !== 'string' || !value.trim()) {
+      return res.status(400).json({ error: `${name} must be a non-empty string.` });
+    }
+  }
+  const normalizedUsername = username.trim().toLowerCase();
+
+  try {
+    const { rows } = await pool.query(`
+      SELECT id, username, password_hash, created_at
+      FROM users
+      WHERE username = $1
+    `, [normalizedUsername]);
+    const user = rows[0];
+    if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+      return res.status(401).json({ error: 'Invalid username or password.' });
+    }
+    res.status(200).json({ id: user.id, username: user.username, created_at: user.created_at });
+  } catch (error) {
+    console.error('User login failed.');
+    res.status(500).json({ error: 'Unable to log in.' });
+  }
+});
 
 app.get('/api/health', async (req, res) => {
   try {
