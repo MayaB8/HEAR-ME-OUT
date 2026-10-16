@@ -17,13 +17,16 @@ import HelpPage from './pages/HelpPage';
 import AboutPage from './pages/AboutPage';
 import TicTacToeGame from './pages/Games/TicTacToe/Game';
 import Toolbar from './component/Toolbar';
+import LoginPage from './pages/LoginPage';
 //import Contact from './component/Contact';
 
 export default function App() {
+  const [user, setUser] = useState(null);
   return (
       <Router>
-      <Toolbar />
+      <Toolbar user={user} />
         <Routes>
+          <Route path="/login" element={<LoginPage onLogin={setUser} />} />
           <Route exact path="/" element={<Home />} />
           <Route exact path="/ExerciseOptionsPage" element={<ExerciseOptionsPage />} />
           <Route path="/ExercisePage" element={<ExercisePage />} />
