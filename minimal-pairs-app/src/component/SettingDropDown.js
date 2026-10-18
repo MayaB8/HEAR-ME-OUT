@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
         color: '#fff',
     },
     typography: {
-        fontSize: 'xx-large', fontWeight: 'bold', color: 'coral',
+        fontSize: 'xx-large', fontWeight: 'bold', color: '#d9472a',
         alignItems: 'flex-end', justifyContent: 'flex-end',
         paddingTop: '20px',
     },
