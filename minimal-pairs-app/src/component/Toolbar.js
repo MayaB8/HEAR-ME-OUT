@@ -45,7 +45,7 @@ export const PAGES = {
     aboutPage: { path: '/AboutPage', label: 'אודות' },
 };
 
-const Toolbar = ({ user = null }) => {
+const Toolbar = ({ user = null, onLogout }) => {
 const navigate = useNavigate();
 const [accountAnchorEl, setAccountAnchorEl] = useState(null);
 const MenuItem = ({ page }) => {
@@ -83,7 +83,7 @@ const MenuItem = ({ page }) => {
                 onClose={() => setAccountAnchorEl(null)}
                 PaperProps={{ dir: 'rtl', sx: { borderRadius: '20px', minWidth: 200, color: '#1C4755' } }}>
                 <MuiMenuItem disabled>הצג פרופיל (בקרוב)</MuiMenuItem>
-                <MuiMenuItem disabled>התנתקות (בקרוב)</MuiMenuItem>
+                <MuiMenuItem onClick={() => { setAccountAnchorEl(null); onLogout(); }}>התנתקות</MuiMenuItem>
             </Menu>
             <IconButton aria-label="תפריט" color="inherit" onClick={handleMenuClick}>
                 <img src={MenuIcon} alt="" />
