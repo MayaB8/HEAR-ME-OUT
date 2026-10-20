@@ -83,6 +83,7 @@ const MenuItem = ({ page }) => {
                 onClose={() => setAccountAnchorEl(null)}
                 PaperProps={{ dir: 'rtl', sx: { borderRadius: '20px', minWidth: 200, color: '#1C4755' } }}>
                 <MuiMenuItem disabled>הצג פרופיל (בקרוב)</MuiMenuItem>
+                <MuiMenuItem onClick={() => { setAccountAnchorEl(null); navigate('/children'); }}>ניהול ילדים</MuiMenuItem>
                 <MuiMenuItem onClick={() => { setAccountAnchorEl(null); onLogout(); }}>התנתקות</MuiMenuItem>
             </Menu>
             <IconButton aria-label="תפריט" color="inherit" onClick={handleMenuClick}>

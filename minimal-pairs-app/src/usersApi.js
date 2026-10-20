@@ -22,6 +22,33 @@ export async function logoutUser() {
   }
 }
 
+export async function getChildren() {
+  const response = await fetch(`${apiBaseUrl}/api/children`, {
+    method: 'GET',
+    credentials: 'include',
+  });
+  if (response.status !== 200) {
+    throw new Error('Unable to load children.');
+  }
+  return response.json();
+}
+
+export async function createChild(childCode, firstName, lastName) {
+  const response = await fetch(`${apiBaseUrl}/api/children`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ childCode, firstName, lastName }),
+  });
+  if (response.status === 409) {
+    throw new Error('Child code already exists for this clinician.');
+  }
+  if (response.status !== 201) {
+    throw new Error('Unable to create child.');
+  }
+  return response.json();
+}
+
 export async function submitCredentials(register, username, password) {
   if (!apiBaseUrl) throw new Error('כתובת השרת אינה מוגדרת.');
   let response;

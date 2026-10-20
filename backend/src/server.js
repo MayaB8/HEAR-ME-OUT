@@ -15,6 +15,31 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+async function requireAuth(req, res, next) {
+  const sessionId = req.cookies.session_id;
+  if (typeof sessionId !== 'string' || !sessionId) {
+    return res.status(401).json({ error: 'Not authenticated.' });
+  }
+
+  try {
+    const sessionIdHash = crypto.createHash('sha256').update(sessionId).digest('hex');
+    const { rows } = await pool.query(`
+      SELECT users.id, users.username, users.created_at
+      FROM sessions
+      JOIN users ON users.id = sessions.user_id
+      WHERE sessions.id_hash = $1 AND sessions.expires_at > NOW()
+    `, [sessionIdHash]);
+    if (!rows[0]) {
+      return res.status(401).json({ error: 'Not authenticated.' });
+    }
+    req.user = rows[0];
+  } catch (error) {
+    console.error('Authentication lookup failed.');
+    return res.status(500).json({ error: 'Unable to authenticate user.' });
+  }
+  next();
+}
+
 app.post('/api/users', async (req, res) => {
   const { username, password } = req.body ?? {};
   for (const [name, value] of Object.entries({ username, password })) {
@@ -126,6 +151,48 @@ app.post('/api/logout', async (req, res) => {
   } catch (error) {
     console.error('User logout failed.');
     res.status(500).json({ error: 'Unable to log out.' });
+  }
+});
+
+app.post('/api/children', requireAuth, async (req, res) => {
+  try {
+    const { childCode, firstName, lastName } = req.body ?? {};
+    for (const [name, value] of Object.entries({ childCode, firstName })) {
+      if (typeof value !== 'string' || !value.trim()) {
+        return res.status(400).json({ error: `${name} must be a non-empty string.` });
+      }
+    }
+    if (lastName !== undefined && typeof lastName !== 'string') {
+      return res.status(400).json({ error: 'lastName must be a string.' });
+    }
+
+    const { rows } = await pool.query(`
+      INSERT INTO children (clinician_id, child_code, first_name, last_name)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id, clinician_id, child_code, first_name, last_name, created_at
+    `, [req.user.id, childCode.trim(), firstName.trim(), lastName?.trim() || null]);
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    if (error.code === '23505' && error.constraint === 'children_clinician_id_child_code_key') {
+      return res.status(409).json({ error: 'Child code already exists for this clinician.' });
+    }
+    console.error('Child creation failed.');
+    res.status(500).json({ error: 'Unable to create child.' });
+  }
+});
+
+app.get('/api/children', requireAuth, async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT id, child_code, first_name, last_name, created_at
+      FROM children
+      WHERE clinician_id = $1
+      ORDER BY created_at DESC
+    `, [req.user.id]);
+    res.json(rows);
+  } catch (error) {
+    console.error('Failed to load children.');
+    res.status(500).json({ error: 'Unable to load children.' });
   }
 });
 
