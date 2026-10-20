@@ -18,6 +18,7 @@ import AboutPage from './pages/AboutPage';
 import TicTacToeGame from './pages/Games/TicTacToe/Game';
 import Toolbar from './component/Toolbar';
 import LoginPage from './pages/LoginPage';
+import ChildrenPage from './pages/ChildrenPage';
 import { getCurrentUser, logoutUser } from './usersApi';
 //import Contact from './component/Contact';
 
@@ -61,8 +62,9 @@ export default function App() {
       {logoutError && <p role="alert" dir="rtl">{logoutError}</p>}
         <Routes>
           <Route path="/login" element={<LoginPage onLogin={setUser} />} />
+          <Route path="/children" element={<ChildrenPage />} />
           <Route exact path="/" element={<Home />} />
-          <Route exact path="/ExerciseOptionsPage" element={<ExerciseOptionsPage />} />
+          <Route exact path="/ExerciseOptionsPage" element={<ExerciseOptionsPage user={user} />} />
           <Route path="/ExercisePage" element={<ExercisePage />} />
           <Route path="/GamesOptionsPage" element={<TicTacToeGame />} />
           <Route path="/HelpPage" element={<HelpPage />} />

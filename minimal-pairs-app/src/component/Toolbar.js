@@ -1,6 +1,7 @@
 import { Button, IconButton, Menu, MenuItem as MuiMenuItem, Toolbar as MuiToolbar } from "@mui/material";
 import PersonRounded from '@mui/icons-material/PersonRounded';
 import ArrowDropDownRounded from '@mui/icons-material/ArrowDropDownRounded';
+import HomeRounded from '@mui/icons-material/HomeRounded';
 import { makeStyles } from "@mui/styles"
 import { useNavigate, useLocation } from "react-router-dom";
 import MenuIcon from './../images/buttons/menuBlueBtn.png';
@@ -83,17 +84,22 @@ const MenuItem = ({ page }) => {
                 onClose={() => setAccountAnchorEl(null)}
                 PaperProps={{ dir: 'rtl', sx: { borderRadius: '20px', minWidth: 200, color: '#1C4755' } }}>
                 <MuiMenuItem disabled>הצג פרופיל (בקרוב)</MuiMenuItem>
+                <MuiMenuItem onClick={() => { setAccountAnchorEl(null); navigate('/children'); }}>ניהול ילדים</MuiMenuItem>
                 <MuiMenuItem onClick={() => { setAccountAnchorEl(null); onLogout(); }}>התנתקות</MuiMenuItem>
             </Menu>
-            <IconButton aria-label="תפריט" color="inherit" onClick={handleMenuClick}>
-                <img src={MenuIcon} alt="" />
+            <IconButton aria-label="דף הבית" onClick={() => navigate('/')}
+                sx={{ color: theme => theme.palette.darkBlue, flexShrink: 0, width: 52, height: 52 }}>
+                <HomeRounded sx={{ fontSize: 36 }} />
+            </IconButton>
+            <IconButton aria-label="תפריט" color="inherit" onClick={handleMenuClick}
+                sx={{ flexShrink: 0, width: 52, height: 52 }}>
+                <img src={MenuIcon} alt="" width="36" height="36" />
             </IconButton>
             <Menu
                 anchorEl={menuAnchorEl}
                 open={Boolean(menuAnchorEl)}
                 onClose={handleMenuClose}
             >
-                <MenuItem page={PAGES.login} />
                 <MenuItem page={PAGES.home} />
                 <MenuItem page={PAGES.exerciseOptionsPage} />
                 <MenuItem page={PAGES.gamesOptionsPage} />

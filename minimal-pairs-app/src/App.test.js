@@ -3,7 +3,7 @@ import App from './App';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from './theme';
 import { fireEvent } from '@testing-library/react';
-import { getCurrentUser } from './usersApi';
+import { getCurrentUser, logoutUser } from './usersApi';
 
 jest.mock('./usersApi', () => ({
   getCurrentUser: jest.fn(),
@@ -13,6 +13,7 @@ jest.mock('./usersApi', () => ({
 beforeEach(() => {
   window.history.replaceState({}, '', '/');
   getCurrentUser.mockReset();
+  logoutUser.mockReset();
   getCurrentUser.mockResolvedValue(null);
 });
 
@@ -49,4 +50,27 @@ test('a restore failure shows an error instead of the signed-out UI', async () =
   expect(await screen.findByRole('alert')).toHaveTextContent('לא ניתן לבדוק את מצב ההתחברות');
   expect(screen.queryByRole('button', { name: 'התחברות' })).not.toBeInTheDocument();
   expect(screen.queryByRole('status')).not.toBeInTheDocument();
+});
+
+test('logout preserves the user while pending and clears it only after success', async () => {
+  getCurrentUser.mockResolvedValue({ id: 1, username: 'maya' });
+  let finishLogout;
+  logoutUser.mockReturnValue(new Promise(resolve => { finishLogout = resolve; }));
+  render(<ThemeProvider theme={theme}><App /></ThemeProvider>);
+  fireEvent.click(await screen.findByRole('button', { name: 'maya' }));
+  fireEvent.click(screen.getByRole('menuitem', { name: 'התנתקות' }));
+  expect(screen.getByRole('button', { name: 'maya' })).toBeInTheDocument();
+  await act(async () => { finishLogout(); });
+  expect(await screen.findByRole('button', { name: 'התחברות' })).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'maya' })).not.toBeInTheDocument();
+});
+
+test('logout failure shows an error and keeps the authenticated user', async () => {
+  getCurrentUser.mockResolvedValue({ id: 1, username: 'maya' });
+  logoutUser.mockRejectedValue(new Error('offline'));
+  render(<ThemeProvider theme={theme}><App /></ThemeProvider>);
+  fireEvent.click(await screen.findByRole('button', { name: 'maya' }));
+  fireEvent.click(screen.getByRole('menuitem', { name: 'התנתקות' }));
+  expect(await screen.findByRole('alert')).toHaveTextContent('לא ניתן להתנתק');
+  expect(screen.getByRole('button', { name: 'maya' })).toBeInTheDocument();
 });
