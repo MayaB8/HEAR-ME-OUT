@@ -56,7 +56,10 @@ export default function ChildrenPage() {
   async function loadChildren() {
     try {
       const loadedChildren = await getChildren();
-      if (active) setChildren(loadedChildren);
+      if (active) setChildren(current => [
+        ...current.filter(child => !loadedChildren.some(loaded => loaded.id === child.id)),
+        ...loadedChildren,
+      ]);
     } catch {
       if (active) setError('לא ניתן לטעון את רשימת הילדים.');
     } finally {
@@ -83,14 +86,14 @@ export default function ChildrenPage() {
         <button className="auth-primary children-add" type="button" onClick={openForm}>הוספת ילד</button>
       </header>
       {notice && <p className="auth-notice" role="status">{notice}</p>}
-      {loading ? <p role="status">טוען ילדים…</p> : error ? (
-        <p className="auth-error" role="alert">{error}</p>
-      ) : children.length === 0 ? (
+      {error && <p className="auth-error" role="alert">{error}</p>}
+      {loading && <p role="status">טוען ילדים…</p>}
+      {children.length === 0 ? (!loading && !error && (
         <section className="children-empty">
           <PersonRounded aria-hidden="true" />
           <p>עדיין אין ילדים ברשימה. לחצו על ״הוספת ילד״ כדי להתחיל.</p>
         </section>
-      ) : (
+      )) : (
         <ul className="children-list">
           {children.map(child => (
             <li className="children-row" key={child.id}>

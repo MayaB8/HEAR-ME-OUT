@@ -64,7 +64,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage onLogin={setUser} />} />
           <Route path="/children" element={<ChildrenPage />} />
           <Route exact path="/" element={<Home />} />
-          <Route exact path="/ExerciseOptionsPage" element={<ExerciseOptionsPage />} />
+          <Route exact path="/ExerciseOptionsPage" element={<ExerciseOptionsPage user={user} />} />
           <Route path="/ExercisePage" element={<ExercisePage />} />
           <Route path="/GamesOptionsPage" element={<TicTacToeGame />} />
           <Route path="/HelpPage" element={<HelpPage />} />

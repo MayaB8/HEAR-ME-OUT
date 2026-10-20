@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../theme';
 import ChildrenPage from './ChildrenPage';
@@ -75,4 +75,34 @@ test('keeps entered fields and shows a duplicate code error', async () => {
   expect(await within(dialog).findByRole('alert')).toHaveTextContent('קוד הילד כבר קיים');
   expect(within(dialog).getByLabelText('שם פרטי')).toHaveValue(' נועה ');
   expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
+});
+
+test('a slow initial load cannot overwrite a child created while loading', async () => {
+  let finishLoad;
+  getChildren.mockReturnValue(new Promise(resolve => { finishLoad = resolve; }));
+  createChild.mockResolvedValue({ id: 2, first_name: 'נועה', child_code: 'C2' });
+  renderPage();
+  fireEvent.click(screen.getByRole('button', { name: 'הוספת ילד' }));
+  const dialog = screen.getByRole('dialog');
+  fireEvent.change(within(dialog).getByLabelText('קוד ילד'), { target: { value: 'C2' } });
+  fireEvent.change(within(dialog).getByLabelText('שם פרטי'), { target: { value: 'נועה' } });
+  fireEvent.click(within(dialog).getByRole('button', { name: 'הוספת ילד' }));
+  await screen.findByText('הילד נוסף בהצלחה.');
+  await act(async () => { finishLoad([{ id: 1, first_name: 'דן', child_code: 'C1' }]); });
+  expect(await screen.findAllByRole('listitem')).toHaveLength(2);
+  expect(screen.getByRole('heading', { name: 'נועה' })).toBeInTheDocument();
+});
+
+test('a child created after a list load failure remains visible alongside the error', async () => {
+  getChildren.mockRejectedValue(new Error('offline'));
+  createChild.mockResolvedValue({ id: 1, first_name: 'נועה', child_code: 'C1' });
+  renderPage();
+  await screen.findByRole('alert');
+  fireEvent.click(screen.getByRole('button', { name: 'הוספת ילד' }));
+  const dialog = screen.getByRole('dialog');
+  fireEvent.change(within(dialog).getByLabelText('קוד ילד'), { target: { value: 'C1' } });
+  fireEvent.change(within(dialog).getByLabelText('שם פרטי'), { target: { value: 'נועה' } });
+  fireEvent.click(within(dialog).getByRole('button', { name: 'הוספת ילד' }));
+  expect(await screen.findByRole('listitem')).toHaveTextContent('נועה');
+  expect(screen.getByRole('alert')).toHaveTextContent('לא ניתן לטעון');
 });
