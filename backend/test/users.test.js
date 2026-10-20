@@ -1,6 +1,7 @@
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const bcrypt = require('bcrypt');
+const crypto = require('node:crypto');
 
 let query;
 require.cache[require.resolve('../src/db')] = {
@@ -102,6 +103,116 @@ const login = body => fetch(url.replace('/api/users', '/api/login'), {
   body: JSON.stringify(body),
 });
 
+const sessionRequest = (path, cookie, method = 'GET') => fetch(
+  url.replace('/api/users', path),
+  { method, headers: cookie ? { Cookie: cookie } : {} },
+);
+
+test('login creates a hashed session and logout revokes access to /api/me', async () => {
+  const publicUser = { id: 1, username: 'alice', created_at: '2026-10-15T00:00:00.000Z' };
+  const user = { ...publicUser, password_hash: await bcrypt.hash('secret', 12) };
+  const sessions = new Map();
+  const startedAt = Date.now();
+  let deletedHash;
+  query = async (sql, values) => {
+    if (/INSERT INTO sessions/.test(sql)) {
+      assert.equal(values[1], user.id);
+      assert.ok(values[2] instanceof Date);
+      sessions.set(values[0], values[2]);
+      return { rows: [] };
+    }
+    if (/DELETE FROM sessions/.test(sql)) {
+      assert.match(sql, /WHERE id_hash = \$1/);
+      deletedHash = values[0];
+      sessions.delete(values[0]);
+      return { rows: [] };
+    }
+    if (/FROM sessions/.test(sql)) {
+      assert.match(sql, /JOIN users ON users.id = sessions.user_id/);
+      assert.match(sql, /sessions.id_hash = \$1/);
+      assert.match(sql, /sessions.expires_at > NOW\(\)/);
+      return { rows: sessions.has(values[0]) ? [publicUser] : [] };
+    }
+    assert.equal(values[0], user.username);
+    return { rows: [user] };
+  };
+
+  const response = await login({ username: 'alice', password: 'secret' });
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), publicUser);
+  const setCookie = response.headers.get('set-cookie');
+  assert.match(setCookie, /HttpOnly/i);
+  assert.match(setCookie, /SameSite=Lax/i);
+  assert.match(setCookie, /Path=\//);
+  assert.match(setCookie, /Max-Age=604800/);
+  const cookie = setCookie.split(';')[0];
+  const rawId = cookie.slice('session_id='.length);
+  assert.match(rawId, /^[a-f0-9]{64}$/);
+  const hash = crypto.createHash('sha256').update(rawId).digest('hex');
+  assert.equal(sessions.size, 1);
+  assert.equal(sessions.has(rawId), false);
+  assert.equal(sessions.has(hash), true);
+  const lifetime = 7 * 24 * 60 * 60 * 1000;
+  assert.ok(sessions.get(hash).getTime() >= startedAt + lifetime);
+  assert.ok(sessions.get(hash).getTime() <= Date.now() + lifetime);
+
+  const me = await sessionRequest('/api/me', cookie);
+  assert.equal(me.status, 200);
+  assert.deepEqual(await me.json(), publicUser);
+
+  const logout = await sessionRequest('/api/logout', cookie, 'POST');
+  assert.equal(logout.status, 204);
+  assert.equal(await logout.text(), '');
+  assert.equal(deletedHash, hash);
+  assert.equal(sessions.size, 0);
+  assert.match(logout.headers.get('set-cookie'), /session_id=;/);
+  assert.match(logout.headers.get('set-cookie'), /Expires=Thu, 01 Jan 1970/);
+  // Replay the old cookie to verify server-side invalidation.
+  assert.equal((await sessionRequest('/api/me', cookie)).status, 401);
+});
+
+test('/api/me without a cookie returns 401 without querying', async () => {
+  query = () => assert.fail('Missing cookie must not query the database');
+  assert.equal((await sessionRequest('/api/me')).status, 401);
+});
+
+test('/api/me rejects expired or unknown sessions using the SQL expiry condition', async () => {
+  query = async (sql, values) => {
+    assert.match(sql, /sessions.expires_at > NOW\(\)/);
+    assert.equal(values[0], crypto.createHash('sha256').update('expired-session').digest('hex'));
+    // PostgreSQL returns no rows when the session is expired or absent.
+    return { rows: [] };
+  };
+  assert.equal((await sessionRequest('/api/me', 'session_id=expired-session')).status, 401);
+});
+
+test('logout without a cookie returns 204 without querying', async () => {
+  query = () => assert.fail('Missing cookie must not query the database');
+  assert.equal((await sessionRequest('/api/logout', undefined, 'POST')).status, 204);
+});
+
+test('session insert failure returns 500 without issuing a cookie', async () => {
+  const password_hash = await bcrypt.hash('secret', 12);
+  query = async sql => {
+    if (/INSERT INTO sessions/.test(sql)) throw new Error('database unavailable');
+    return { rows: [{ id: 1, username: 'alice', password_hash }] };
+  };
+  const response = await login({ username: 'alice', password: 'secret' });
+  assert.equal(response.status, 500);
+  assert.equal(response.headers.get('set-cookie'), null);
+});
+
+test('session lookup and delete failures return 500', async () => {
+  query = async () => { throw new Error('sensitive database details'); };
+  const me = await sessionRequest('/api/me', 'session_id=some-session');
+  assert.equal(me.status, 500);
+  assert.deepEqual(await me.json(), { error: 'Unable to restore user.' });
+  const logout = await sessionRequest('/api/logout', 'session_id=some-session', 'POST');
+  assert.equal(logout.status, 500);
+  assert.equal(logout.headers.get('set-cookie'), null);
+  assert.deepEqual(await logout.json(), { error: 'Unable to log out.' });
+});
+
 test('login rejects missing, blank, and non-string credentials with 400', async () => {
   query = () => assert.fail('Invalid input must not query the database');
   for (const body of [
@@ -134,10 +245,14 @@ test('login returns 200 with public fields and normalizes username without trimm
 
 test('wrong password and unknown username return identical 401 responses', async () => {
   const user = { username: 'alice', password_hash: await bcrypt.hash('secret', 12) };
-  query = async (sql, values) => ({ rows: values[0] === user.username ? [user] : [] });
+  query = async (sql, values) => {
+    assert.doesNotMatch(sql, /INSERT INTO sessions/);
+    return { rows: values[0] === user.username ? [user] : [] };
+  };
   for (const username of ['alice', 'unknown']) {
     const response = await login({ username, password: 'wrong' });
     assert.equal(response.status, 401);
+    assert.equal(response.headers.get('set-cookie'), null);
     assert.deepEqual(await response.json(), { error: 'Invalid username or password.' });
   }
 });
