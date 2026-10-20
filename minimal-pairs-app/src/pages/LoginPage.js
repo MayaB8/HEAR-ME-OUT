@@ -17,6 +17,7 @@ function CredentialsForm({ register = false, onSuccess }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (busy) return;
     setError('');
     if (!username.trim() || !password.trim()) {
       setError('יש למלא שם משתמש וסיסמה.');
@@ -43,7 +44,7 @@ function CredentialsForm({ register = false, onSuccess }) {
   }
 
   return (
-    <form className="auth-form" onSubmit={handleSubmit} aria-busy={busy}>
+    <form id={`${prefix}-form`} className="auth-form" onSubmit={handleSubmit} aria-busy={busy}>
       <label htmlFor={`${prefix}-username`}>שם משתמש</label>
       <div className="auth-input-wrap"><PersonRounded aria-hidden="true" />
       <input id={`${prefix}-username`} name="username" dir="rtl" autoComplete="username"
@@ -65,9 +66,9 @@ function CredentialsForm({ register = false, onSuccess }) {
             onChange={event => setConfirmation(event.target.value)} />
         </div>
       </>}
-      <button className="auth-primary" type="submit" disabled={busy}>
-        {busy ? 'רק רגע…' : register ? 'צור חשבון' : 'התחבר'}
-      </button>
+      {register && <button className="auth-primary" type="submit" disabled={busy}>
+        {busy ? 'רק רגע…' : 'צור חשבון'}
+      </button>}
       {error && <p className="auth-error" role="alert"><span aria-hidden="true">!</span>{error}</p>}
     </form>
   );
@@ -90,7 +91,7 @@ export default function LoginPage({ onLogin = () => {} }) {
               לחשבון
             </Typography>
           </Typography>
-          <a className="auth-back" href="/" aria-label="חזרה למסך הראשי"><img src={leftArrowBtn} alt="" /></a>
+          <button className="auth-back" type="submit" form="login-form" aria-label="התחבר"><img src={leftArrowBtn} alt="" /></button>
         </section>
         <section className="auth-card" aria-labelledby="login-title">
           <CredentialsForm onSuccess={(username, user) => {
