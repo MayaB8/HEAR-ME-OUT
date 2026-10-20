@@ -4,9 +4,9 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from '../theme';
 import Toolbar from './Toolbar';
 
-function openToolbar(user = null) {
+function openToolbar(user = null, onLogout = jest.fn()) {
   render(<ThemeProvider theme={theme}><MemoryRouter>
-    <Toolbar user={user} />
+    <Toolbar user={user} onLogout={onLogout} />
     <Routes>
       <Route path="/" element={<p>ראשי</p>} />
       <Route path="/login" element={<p>מסך התחברות</p>} />
@@ -20,12 +20,15 @@ test('account button opens login for a visitor', async () => {
   expect(await screen.findByText('מסך התחברות')).toBeInTheDocument();
 });
 
-test('logged in username opens a menu with disabled sample actions', () => {
-  openToolbar({ id: 1, username: 'maya' });
+test('logged in username opens a menu and logout calls the handler', () => {
+  const onLogout = jest.fn();
+  openToolbar({ id: 1, username: 'maya' }, onLogout);
   const button = screen.getByRole('button', { name: 'maya' });
   expect(button).toHaveAttribute('aria-expanded', 'false');
   fireEvent.click(button);
   expect(button).toHaveAttribute('aria-expanded', 'true');
   expect(screen.getByRole('menuitem', { name: 'הצג פרופיל (בקרוב)' })).toHaveAttribute('aria-disabled', 'true');
-  expect(screen.getByRole('menuitem', { name: 'התנתקות (בקרוב)' })).toHaveAttribute('aria-disabled', 'true');
+  fireEvent.click(screen.getByRole('menuitem', { name: 'התנתקות' }));
+  expect(onLogout).toHaveBeenCalledTimes(1);
+  expect(button).toHaveAttribute('aria-expanded', 'false');
 });

@@ -1,15 +1,19 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const bcrypt = require('bcrypt');
+const crypto = require('node:crypto');
 const pool = require('./db');
 
 const app = express();
 app.disable('x-powered-by');
 app.use(cors({
   origin: process.env.FRONTEND_ORIGIN || 'http://localhost:3000',
+  credentials: true,
   methods: ['GET', 'POST'],
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 app.post('/api/users', async (req, res) => {
   const { username, password } = req.body ?? {};
@@ -60,10 +64,68 @@ app.post('/api/login', async (req, res) => {
     if (!user || !(await bcrypt.compare(password, user.password_hash))) {
       return res.status(401).json({ error: 'Invalid username or password.' });
     }
+    const sessionId = crypto.randomBytes(32).toString('hex');
+    const sessionIdHash = crypto.createHash('sha256').update(sessionId).digest('hex');
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    await pool.query(`
+      INSERT INTO sessions (id_hash, user_id, expires_at)
+      VALUES ($1, $2, $3)
+    `, [sessionIdHash, user.id, expiresAt]);
+    res.cookie('session_id', sessionId, {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: process.env.NODE_ENV === 'production',
+    });
     res.status(200).json({ id: user.id, username: user.username, created_at: user.created_at });
   } catch (error) {
     console.error('User login failed.');
     res.status(500).json({ error: 'Unable to log in.' });
+  }
+});
+
+app.get('/api/me', async (req, res) => {
+  const sessionId = req.cookies.session_id;
+  if (typeof sessionId !== 'string' || !sessionId) {
+    return res.status(401).json({ error: 'Not authenticated.' });
+  }
+
+  const sessionIdHash = crypto.createHash('sha256').update(sessionId).digest('hex');
+  try {
+    const { rows } = await pool.query(`
+      SELECT users.id, users.username, users.created_at
+      FROM sessions
+      JOIN users ON users.id = sessions.user_id
+      WHERE sessions.id_hash = $1 AND sessions.expires_at > NOW()
+    `, [sessionIdHash]);
+    if (!rows[0]) {
+      return res.status(401).json({ error: 'Not authenticated.' });
+    }
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Session lookup failed.');
+    res.status(500).json({ error: 'Unable to restore user.' });
+  }
+});
+
+app.post('/api/logout', async (req, res) => {
+  const sessionId = req.cookies.session_id;
+  try {
+    if (typeof sessionId === 'string' && sessionId) {
+      const sessionIdHash = crypto.createHash('sha256').update(sessionId).digest('hex');
+      await pool.query('DELETE FROM sessions WHERE id_hash = $1', [sessionIdHash]);
+    }
+    res.clearCookie('session_id', {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+    });
+    res.status(204).end();
+  } catch (error) {
+    console.error('User logout failed.');
+    res.status(500).json({ error: 'Unable to log out.' });
   }
 });
 
