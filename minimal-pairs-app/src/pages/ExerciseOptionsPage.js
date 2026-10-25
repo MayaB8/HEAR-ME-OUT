@@ -123,13 +123,17 @@ function ExerciseOptionsPage({ user = null }) {
     //---------------NAVIGATE-------------------
     const navigate = useNavigate();
     const navigateExercise = () => {
+        const selectedChild = children.find(child => child.id === selectedChildId);
         navigate('/ExercisePage', {
             state: {
                 category: category.value,
                 letters: letters.label,
                 placeInWord: placeInWord.value,
                 voice: voice.label,
-                ...(user ? { childId: selectedChildId } : {}),
+                ...(user ? {
+                    childId: selectedChildId,
+                    childName: selectedChild ? [selectedChild.first_name, selectedChild.last_name].filter(Boolean).join(' ') : null,
+                } : {}),
             }
         });
     };
@@ -141,14 +145,15 @@ function ExerciseOptionsPage({ user = null }) {
     const [voice, setVoice] = useState(voiceOptions.man);
 
     const handleChangeCategory = (value) => {
+        const nextLetters = value.letterOptions.find(option => option.label === letters.label) || value.letterOptions[0];
         setCategory(value);
-        setLetteres(value.letterOptions[0]);
-        setPlaceInWord(placeInWordOp.all);
+        setLetteres(nextLetters);
+        setPlaceInWord(current => nextLetters.placeInWordOptions.find(option => option.value === current.value) || placeInWordOp.all);
     };
 
     const handleChangelLetters = (value) => {
         setLetteres(value);
-        setPlaceInWord(placeInWordOp.all);
+        setPlaceInWord(current => value.placeInWordOptions.find(option => option.value === current.value) || placeInWordOp.all);
     };
 
     return (

@@ -31,6 +31,7 @@ export const SettingDropDown = ({ title, options, updateState, value, includeEng
             <FormControl >
                 <Select
                     value={value}
+                    onChange={event => handleChoice(event.target.value)}
                     sx={{
                         boxShadow: 'none', '.MuiOutlinedInput-notchedOutline': { border: 0 }, "& .MuiSvgIcon-root": {
                             right: "unset",
@@ -50,7 +51,7 @@ export const SettingDropDown = ({ title, options, updateState, value, includeEng
                     }}
                 >
                     {options.map((option) => <MenuItem key={option.label} style={{ justifyContent: 'center' }} value={option}
-                        onClick={() => handleChoice(option)}>{includeEngSounds ? `${option.label} ${option.sounds}` : option.label}</MenuItem>)}
+                        >{includeEngSounds ? `${option.label} ${option.sounds}` : option.label}</MenuItem>)}
 
                 </Select>
             </FormControl>
