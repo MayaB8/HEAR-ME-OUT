@@ -12,7 +12,7 @@ import Confetti from 'react-confetti';
 import { randomReaction } from '../component/utils/Reaction';
 import { useNavigate } from 'react-router-dom';
 import { getMinimalPairs } from '../minimalPairsApi';
-import ExerciseSummaryDialog from '../component/ExerciseSummaryDialog';
+import ExerciseSummaryDialog, { ExerciseSavedDialog } from '../component/ExerciseSummaryDialog';
 
 function playAudio(voice) {
   if (!voice) return;
@@ -37,6 +37,7 @@ export default function ExercisePage() {
   const [mistakenPairs, setMistakenPairs] = useState(new Set());
   const [summary, setSummary] = useState(null);
   const [summaryOpen, setSummaryOpen] = useState(false);
+  const [saveSuccessOpen, setSaveSuccessOpen] = useState(false);
   const exerciseCompleted = useRef(false);
   const loadedSettings = useRef(null);
   const retryTimeout = useRef(null);
@@ -58,6 +59,7 @@ export default function ExercisePage() {
     setMistakenPairs(new Set());
     setSummary(null);
     setSummaryOpen(false);
+    setSaveSuccessOpen(false);
     exerciseCompleted.current = false;
     loadedSettings.current = null;
     const getFromDB = async () => {
@@ -216,6 +218,7 @@ export default function ExercisePage() {
     if (!summary?.isCompleted || summary.childId == null) return;
     console.log('Exercise summary (not persisted):', summary);
     setSummaryOpen(false);
+    setSaveSuccessOpen(true);
   };
 
   return (
@@ -309,6 +312,9 @@ export default function ExercisePage() {
       </div>
       <ExerciseSummaryDialog open={summaryOpen} summary={summary}
         onClose={() => setSummaryOpen(false)} onSave={handleSummarySave} />
+      <ExerciseSavedDialog open={saveSuccessOpen}
+        onClose={() => setSaveSuccessOpen(false)}
+        onHome={() => navigate('/')} />
     </div>
   );
 }

@@ -5,6 +5,29 @@ import '../pages/LoginPage.css';
 
 const positions = { start: 'תחילת מילה', middle: 'אמצע מילה', end: 'סוף מילה' };
 
+export function ExerciseSavedDialog({ open, onClose, onHome }) {
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm"
+      aria-labelledby="exercise-saved-title" aria-describedby="exercise-saved-description"
+      BackdropProps={{ className: 'auth-backdrop' }}
+      PaperProps={{ className: 'auth-dialog', dir: 'rtl', lang: 'he', sx: {
+        '&.auth-dialog': { padding: '56px 24px 24px', width: 'calc(100% - 32px)', maxWidth: 560, boxSizing: 'border-box', margin: 2 },
+        '&.auth-dialog h2': { fontSize: { xs: 28, sm: 34 }, textAlign: 'center', color: theme => theme.palette.green },
+        '& .auth-close': { display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0, width: 34, height: 34, font: '26px/1 Arial', top: 12, left: 12 },
+      } }}>
+      <button className="auth-close" type="button" aria-label="סגירת אישור השמירה" onClick={onClose}>×</button>
+      <h2 id="exercise-saved-title">התרגול נשמר בהצלחה</h2>
+      <Typography id="exercise-saved-description" sx={{ mt: 2, p: 2, borderRadius: '20px', bgcolor: theme => alpha(theme.palette.lightBlue, .4), color: theme => theme.palette.darkBlue, textAlign: 'right' }}>
+        כרגע זהו אישור הדגמה בלבד. הסיכום הודפס למסוף ולא נשמר בשרת.
+      </Typography>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mt: 3 }}>
+        <Button onClick={onClose} sx={{ flex: 1, minWidth: 160, borderRadius: '50px', fontSize: 20, fontWeight: 'bold', color: theme => theme.palette.white, bgcolor: theme => theme.palette.green, '&:hover': { bgcolor: theme => theme.palette.green } }}>חזרה לתרגול</Button>
+        <button type="button" className="auth-secondary" style={{ flex: 1, minWidth: 160, width: 'auto', borderRadius: 50 }} onClick={onHome}>חזרה לדף הבית</button>
+      </Box>
+    </Dialog>
+  );
+}
+
 export default function ExerciseSummaryDialog({ open, summary, onClose, onSave }) {
   if (!summary) return null;
   const linkedToChild = summary.childId !== null && summary.childId !== undefined;

@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, act, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../theme';
 import ExercisePage from './ExercisePage';
@@ -8,8 +8,11 @@ import { getMinimalPairs } from '../minimalPairsApi';
 jest.mock('../minimalPairsApi');
 jest.mock('react-confetti', () => () => null);
 const settings = { category: 'קוליות', letters: 'הכל', placeInWord: 'הכל', voice: 'גבר' };
+function CurrentPath() {
+  return <span data-testid="current-path">{useLocation().pathname}</span>;
+}
 function openExercise(state = settings) {
-  return render(<ThemeProvider theme={theme}><MemoryRouter initialEntries={[{ pathname: '/ExercisePage', state }]}><ExercisePage /></MemoryRouter></ThemeProvider>);
+  return render(<ThemeProvider theme={theme}><MemoryRouter initialEntries={[{ pathname: '/ExercisePage', state }]}><ExercisePage /><CurrentPath /></MemoryRouter></ThemeProvider>);
 }
 afterEach(() => { jest.useRealTimers(); jest.restoreAllMocks(); });
 
@@ -94,6 +97,19 @@ test('completion counts repeated mistakes once per pair and logs the exact child
     positionInWord: 'הכל', voice: 'גבר', totalPairs: 2, pairsWithMistakes: 1,
     pairsWithoutMistakes: 1, incompletePairs: 0, mistakenPairs: [{ id: 11, words: ['צב', 'תו'] }],
   });
+  const confirmation = await screen.findByRole('dialog', { name: 'התרגול נשמר בהצלחה' });
+  expect(within(confirmation).getByText(/אישור הדגמה בלבד/)).toBeInTheDocument();
+  expect(within(confirmation).getByRole('button', { name: 'חזרה לדף הבית' })).toBeInTheDocument();
+  fireEvent.click(within(confirmation).getByRole('button', { name: 'חזרה לתרגול' }));
+  act(() => jest.advanceTimersByTime(300));
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(screen.getByTestId('current-path')).toHaveTextContent('/ExercisePage');
+
+  fireEvent.click(screen.getByRole('button', { name: 'סיכום התרגול' }));
+  fireEvent.click(within(await screen.findByRole('dialog')).getByRole('button', { name: 'שמירת התרגול' }));
+  const nextConfirmation = await screen.findByRole('dialog', { name: 'התרגול נשמר בהצלחה' });
+  fireEvent.click(within(nextConfirmation).getByRole('button', { name: 'חזרה לדף הבית' }));
+  expect(screen.getByTestId('current-path').textContent).toBe('/');
 });
 
 test('skipped pairs are not completed and guests never see a history action', async () => {
