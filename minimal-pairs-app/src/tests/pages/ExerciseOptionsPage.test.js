@@ -1,11 +1,11 @@
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from '../theme';
-import ExerciseOptionsPage from './ExerciseOptionsPage';
-import { getChildren } from '../usersApi';
+import theme from '../../configuration/theme';
+import ExerciseOptionsPage from '../../pages/exercises/ExerciseOptionsPage';
+import { getChildren } from '../../api/usersApi';
 
-jest.mock('../usersApi', () => ({ getChildren: jest.fn() }));
+jest.mock('../../api/usersApi', () => ({ getChildren: jest.fn() }));
 const clinician = { id: 7, username: 'maya' };
 const child = { id: 12, first_name: 'נועה', last_name: 'לוי', child_code: 'C12' };
 

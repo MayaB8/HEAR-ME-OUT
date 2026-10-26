@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Typography, IconButton, Grid } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import PageBg from './../images/pagesBg/skyAndCloudsBg.png';
-import HelpBg from './../images/pagesBg/helpBgWithoutText.png';
-import nextBtn from './../images/buttons/leftArrowBlueBtn.png';
-import prevBtn from './../images/buttons/rightArrowBlueBtn.png';
+import PageBg from '../assets/images/page-backgrounds/skyAndCloudsBg.png';
+import HelpBg from '../assets/images/page-backgrounds/helpBgWithoutText.png';
+import nextBtn from '../assets/images/buttons/leftArrowBlueBtn.png';
+import prevBtn from '../assets/images/buttons/rightArrowBlueBtn.png';
 
 function HelpPage() {
   const theme = useTheme();

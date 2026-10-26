@@ -1,11 +1,11 @@
 import { render, screen, act } from '@testing-library/react';
-import App from './App';
+import App from '../App';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from './theme';
+import theme from '../configuration/theme';
 import { fireEvent } from '@testing-library/react';
-import { getCurrentUser, logoutUser } from './usersApi';
+import { getCurrentUser, logoutUser } from '../api/usersApi';
 
-jest.mock('./usersApi', () => ({
+jest.mock('../api/usersApi', () => ({
   getCurrentUser: jest.fn(),
   logoutUser: jest.fn(),
 }));

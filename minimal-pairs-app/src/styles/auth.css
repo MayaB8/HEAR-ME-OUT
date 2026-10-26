@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'AssistantAuth';
-  src: url('../fonts/Assistant-Regular.woff2') format('woff2');
+  src: url('../assets/fonts/Assistant-Regular.woff2') format('woff2');
   font-display: swap;
 }
 
@@ -19,7 +19,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #c2e3f3 url('../images/pagesBg/skyAndCloudsBg.png') left top / cover no-repeat;
+  background: #c2e3f3 url('../assets/images/page-backgrounds/skyAndCloudsBg.png') left top / cover no-repeat;
 }
 .auth-layout { display: flex; flex-direction: row-reverse; justify-content: center; align-items: center; gap: 180px; position: relative; max-width: 100%; }
 .auth-welcome { flex: 0 1 auto; text-align: center; min-width: 0; }

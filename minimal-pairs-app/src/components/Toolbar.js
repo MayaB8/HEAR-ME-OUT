@@ -4,7 +4,7 @@ import ArrowDropDownRounded from '@mui/icons-material/ArrowDropDownRounded';
 import HomeRounded from '@mui/icons-material/HomeRounded';
 import { makeStyles } from "@mui/styles"
 import { useNavigate, useLocation } from "react-router-dom";
-import MenuIcon from './../images/buttons/menuBlueBtn.png';
+import MenuIcon from '../assets/images/buttons/menuBlueBtn.png';
 import { useState } from "react";
 
 const useStyles = makeStyles(() => ({

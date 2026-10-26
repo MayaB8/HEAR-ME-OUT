@@ -1,11 +1,11 @@
 import { render, screen, fireEvent, act, within } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from '../theme';
-import ExercisePage from './ExercisePage';
-import { getMinimalPairs } from '../minimalPairsApi';
+import theme from '../../configuration/theme';
+import ExercisePage from '../../pages/exercises/ExercisePage';
+import { getMinimalPairs } from '../../api/minimalPairsApi';
 
-jest.mock('../minimalPairsApi');
+jest.mock('../../api/minimalPairsApi');
 jest.mock('react-confetti', () => () => null);
 const settings = { category: 'קוליות', letters: 'הכל', placeInWord: 'הכל', voice: 'גבר' };
 function CurrentPath() {

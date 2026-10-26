@@ -2,14 +2,14 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import gamesOptionsPage from './../images/pagesBg/gamesWithoutKidBg.jpg';
-import ImagePlaceHolder from '../component/ImagePlaceHolder';
-import gameTicTacToe from './../images/games/game_ticTacToe.png';
-import gamePuzzle from './../images/games/game_puzzleUnavailable.png';
-import gameHitTheMole from './../images/games/game_hitTheMoleUnavailable.png';
-import gameMemoryGame from './../images/games/game_memoryGameUnavailable.png';
-import gameSnakeAndLadders from './../images/games/game_snakeAndLaddersUnavailable.png';
-import gameRexy from './../images/games/game_rexyUnavailable.png';
+import gamesOptionsPage from '../assets/images/page-backgrounds/gamesWithoutKidBg.jpg';
+import ImagePlaceHolder from '../components/ImagePlaceHolder';
+import gameTicTacToe from '../assets/images/games/game_ticTacToe.png';
+import gamePuzzle from '../assets/images/games/game_puzzleUnavailable.png';
+import gameHitTheMole from '../assets/images/games/game_hitTheMoleUnavailable.png';
+import gameMemoryGame from '../assets/images/games/game_memoryGameUnavailable.png';
+import gameSnakeAndLadders from '../assets/images/games/game_snakeAndLaddersUnavailable.png';
+import gameRexy from '../assets/images/games/game_rexyUnavailable.png';
 
 import { makeStyles } from '@mui/styles';
 

@@ -3,10 +3,10 @@ import ReactDOM from 'react-dom/client';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { StyledEngineProvider } from "@mui/material";
-import './index.css';
+import './styles/index.css';
 import App from './App';
-import theme from './theme';
-import reportWebVitals from './reportWebVitals';
+import theme from './configuration/theme';
+import reportWebVitals from './utilities/reportWebVitals';
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

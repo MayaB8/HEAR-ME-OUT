@@ -1,7 +1,7 @@
 import React from 'react';
 import { alpha } from '@mui/material/styles';
 import { Box, Button, Dialog, Typography } from '@mui/material';
-import '../pages/LoginPage.css';
+import '../styles/auth.css';
 
 const positions = { start: 'תחילת מילה', middle: 'אמצע מילה', end: 'סוף מילה' };
 

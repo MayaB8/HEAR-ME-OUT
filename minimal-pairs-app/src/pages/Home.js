@@ -1,13 +1,13 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IconButton } from '@mui/material';
-import homePageBg from './../images/pagesBg/homePageBg.png';
-import homePageSquare from './../images/pagesBg/homePageSquare.png';
-import gamesIcon from './../images/buttons/gamesBtn.png';
-import exerciseIcon from './../images/buttons/exercisesBtn.png';
-import helpIcon from './../images/buttons/helpBtn.png';
+import homePageBg from '../assets/images/page-backgrounds/homePageBg.png';
+import homePageSquare from '../assets/images/page-backgrounds/homePageSquare.png';
+import gamesIcon from '../assets/images/buttons/gamesBtn.png';
+import exerciseIcon from '../assets/images/buttons/exercisesBtn.png';
+import helpIcon from '../assets/images/buttons/helpBtn.png';
 import { makeStyles } from '@mui/styles';
-import { PAGES } from '../component/Toolbar';
+import { PAGES } from '../components/Toolbar';
 
 const useStyles = makeStyles((theme) => ({
   container: {

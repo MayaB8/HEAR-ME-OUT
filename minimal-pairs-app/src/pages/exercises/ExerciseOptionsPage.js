@@ -4,13 +4,13 @@ import { Typography, Button, IconButton } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import PersonRounded from '@mui/icons-material/PersonRounded';
 import SettingsRounded from '@mui/icons-material/SettingsRounded';
-import leftArrowBtn from '../images/buttons/leftArrowBtn.png';
+import leftArrowBtn from '../../assets/images/buttons/leftArrowBtn.png';
 import { makeStyles } from '@mui/styles';
-import { SettingDropDown } from '../component/SettingDropDown';
-import PageBg from './../images/pagesBg/skyAndCloudsBg.png';
-import InfoDialog from '../component/InfoDialog';
-import { manWomanOptions, options, placeInWordOp, voiceOptions } from '../component/utils/options';
-import { getChildren } from '../usersApi';
+import { SettingDropDown } from '../../components/SettingDropDown';
+import PageBg from '../../assets/images/page-backgrounds/skyAndCloudsBg.png';
+import InfoDialog from '../../components/InfoDialog';
+import { manWomanOptions, options, placeInWordOp, voiceOptions } from '../../constants/exerciseOptions';
+import { getChildren } from '../../api/usersApi';
 
 const useStyles = makeStyles((theme) => ({
     root: {

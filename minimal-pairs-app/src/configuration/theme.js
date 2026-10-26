@@ -1,7 +1,7 @@
 import { createTheme } from '@mui/material/styles';
-import AssistantURL from './fonts/Assistant-Regular.ttf';
-import AssistantRegularURL from './fonts/Assistant-Regular.woff';
-import AssistantRegular2URL from './fonts/Assistant-Regular.woff2';
+import AssistantURL from '../assets/fonts/Assistant-Regular.ttf';
+import AssistantRegularURL from '../assets/fonts/Assistant-Regular.woff';
+import AssistantRegular2URL from '../assets/fonts/Assistant-Regular.woff2';
 const theme = createTheme({
   palette: {
     black: '#000000',

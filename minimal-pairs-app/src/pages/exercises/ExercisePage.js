@@ -2,17 +2,17 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from "react-router-dom";
 import { Typography, IconButton, Grid, Button } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import replaySound from './../images/buttons/replaySoundBtn.png';
-import exercisePage from './../images/pagesBg/exercisePageWithoutText.png';
-import nextBtn from './../images/buttons/leftArrowBlueBtn.png';
-import prevBtn from './../images/buttons/rightArrowBlueBtn.png';
-import returnSettingsBtn from './../images/buttons/leftArrowBtn.png';
-import ImagePlaceHolder from '../component/ImagePlaceHolder';
+import replaySound from '../../assets/images/buttons/replaySoundBtn.png';
+import exercisePage from '../../assets/images/page-backgrounds/exercisePageWithoutText.png';
+import nextBtn from '../../assets/images/buttons/leftArrowBlueBtn.png';
+import prevBtn from '../../assets/images/buttons/rightArrowBlueBtn.png';
+import returnSettingsBtn from '../../assets/images/buttons/leftArrowBtn.png';
+import ImagePlaceHolder from '../../components/ImagePlaceHolder';
 import Confetti from 'react-confetti';
-import { randomReaction } from '../component/utils/Reaction';
+import { randomReaction } from '../../utilities/reactions';
 import { useNavigate } from 'react-router-dom';
-import { getMinimalPairs } from '../minimalPairsApi';
-import ExerciseSummaryDialog, { ExerciseSavedDialog } from '../component/ExerciseSummaryDialog';
+import { getMinimalPairs } from '../../api/minimalPairsApi';
+import ExerciseSummaryDialog, { ExerciseSavedDialog } from '../../components/ExerciseSummaryDialog';
 
 function playAudio(voice) {
   if (!voice) return;
