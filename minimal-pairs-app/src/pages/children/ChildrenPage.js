@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Box, Dialog, Typography } from '@mui/material';
 import PersonRounded from '@mui/icons-material/PersonRounded';
 import BadgeRounded from '@mui/icons-material/BadgeRounded';
-import { createChild, getChildren } from '../usersApi';
-import './LoginPage.css';
+import { createChild, getChildren } from '../../api/usersApi';
+import '../../styles/auth.css';
 import './ChildrenPage.css';
 
 export default function ChildrenPage() {

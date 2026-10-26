@@ -1,6 +1,6 @@
 import { Typography, Button } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import imgWhiteBg from './../images/buttons/imgBg.png';
+import imgWhiteBg from '../assets/images/buttons/imgBg.png';
 
 const useStyles = makeStyles(() => ({
   container: {

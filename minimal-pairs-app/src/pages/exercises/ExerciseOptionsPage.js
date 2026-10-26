@@ -4,13 +4,13 @@ import { Typography, Button, IconButton } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import PersonRounded from '@mui/icons-material/PersonRounded';
 import SettingsRounded from '@mui/icons-material/SettingsRounded';
-import leftArrowBtn from '../images/buttons/leftArrowBtn.png';
+import leftArrowBtn from '../../assets/images/buttons/leftArrowBtn.png';
 import { makeStyles } from '@mui/styles';
-import { SettingDropDown } from '../component/SettingDropDown';
-import PageBg from './../images/pagesBg/skyAndCloudsBg.png';
-import InfoDialog from '../component/InfoDialog';
-import { manWomanOptions, options, placeInWordOp, voiceOptions } from '../component/utils/options';
-import { getChildren } from '../usersApi';
+import { SettingDropDown } from '../../components/SettingDropDown';
+import PageBg from '../../assets/images/page-backgrounds/skyAndCloudsBg.png';
+import InfoDialog from '../../components/InfoDialog';
+import { manWomanOptions, options, placeInWordOp, voiceOptions } from '../../constants/exerciseOptions';
+import { getChildren } from '../../api/usersApi';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -123,13 +123,17 @@ function ExerciseOptionsPage({ user = null }) {
     //---------------NAVIGATE-------------------
     const navigate = useNavigate();
     const navigateExercise = () => {
+        const selectedChild = children.find(child => child.id === selectedChildId);
         navigate('/ExercisePage', {
             state: {
                 category: category.value,
                 letters: letters.label,
                 placeInWord: placeInWord.value,
                 voice: voice.label,
-                ...(user ? { childId: selectedChildId } : {}),
+                ...(user ? {
+                    childId: selectedChildId,
+                    childName: selectedChild ? [selectedChild.first_name, selectedChild.last_name].filter(Boolean).join(' ') : null,
+                } : {}),
             }
         });
     };
@@ -141,14 +145,15 @@ function ExerciseOptionsPage({ user = null }) {
     const [voice, setVoice] = useState(voiceOptions.man);
 
     const handleChangeCategory = (value) => {
+        const nextLetters = value.letterOptions.find(option => option.label === letters.label) || value.letterOptions[0];
         setCategory(value);
-        setLetteres(value.letterOptions[0]);
-        setPlaceInWord(placeInWordOp.all);
+        setLetteres(nextLetters);
+        setPlaceInWord(current => nextLetters.placeInWordOptions.find(option => option.value === current.value) || placeInWordOp.all);
     };
 
     const handleChangelLetters = (value) => {
         setLetteres(value);
-        setPlaceInWord(placeInWordOp.all);
+        setPlaceInWord(current => value.placeInWordOptions.find(option => option.value === current.value) || placeInWordOp.all);
     };
 
     return (

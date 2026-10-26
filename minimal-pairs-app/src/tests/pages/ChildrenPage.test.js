@@ -1,10 +1,10 @@
 import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from '../theme';
-import ChildrenPage from './ChildrenPage';
-import { getChildren, createChild } from '../usersApi';
+import theme from '../../configuration/theme';
+import ChildrenPage from '../../pages/children/ChildrenPage';
+import { getChildren, createChild } from '../../api/usersApi';
 
-jest.mock('../usersApi', () => ({ getChildren: jest.fn(), createChild: jest.fn() }));
+jest.mock('../../api/usersApi', () => ({ getChildren: jest.fn(), createChild: jest.fn() }));
 
 beforeEach(() => {
   jest.resetAllMocks();

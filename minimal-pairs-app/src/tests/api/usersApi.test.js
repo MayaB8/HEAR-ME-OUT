@@ -1,5 +1,5 @@
 process.env.REACT_APP_API_BASE_URL = 'http://localhost:3001/';
-const { getCurrentUser, logoutUser, getChildren, createChild, submitCredentials } = require('./usersApi');
+const { getCurrentUser, logoutUser, getChildren, createChild, submitCredentials } = require('../../api/usersApi');
 const originalFetch = global.fetch;
 beforeEach(() => { global.fetch = jest.fn(); });
 afterEach(() => { global.fetch = originalFetch; });

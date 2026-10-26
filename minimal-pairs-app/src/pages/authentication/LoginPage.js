@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Dialog, Typography } from '@mui/material';
 import PersonRounded from '@mui/icons-material/PersonRounded';
 import LockRounded from '@mui/icons-material/LockRounded';
-import leftArrowBtn from '../images/buttons/leftArrowBtn.png';
-import { submitCredentials } from '../usersApi';
-import './LoginPage.css';
+import leftArrowBtn from '../../assets/images/buttons/leftArrowBtn.png';
+import { submitCredentials } from '../../api/usersApi';
+import '../../styles/auth.css';
 
 function CredentialsForm({ register = false, onSuccess }) {
   const [username, setUsername] = useState('');

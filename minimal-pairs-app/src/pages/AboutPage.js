@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Typography, IconButton } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import PageBg from './../images/pagesBg/skyAndCloudsBg.png';
-import AboutBg from './../images/pagesBg/aboutPageSquar.png';
-import nextBtn from './../images/buttons/leftArrowBlueBtn.png';
-import prevBtn from './../images/buttons/rightArrowBlueBtn.png';
+import PageBg from '../assets/images/page-backgrounds/skyAndCloudsBg.png';
+import AboutBg from '../assets/images/page-backgrounds/aboutPageSquar.png';
+import nextBtn from '../assets/images/buttons/leftArrowBlueBtn.png';
+import prevBtn from '../assets/images/buttons/rightArrowBlueBtn.png';
 
 function AboutPage() {
   const theme = useTheme();

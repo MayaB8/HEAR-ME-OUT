@@ -1,11 +1,11 @@
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from '../theme';
-import LoginPage from './LoginPage';
-import { submitCredentials } from '../usersApi';
+import theme from '../../configuration/theme';
+import LoginPage from '../../pages/authentication/LoginPage';
+import { submitCredentials } from '../../api/usersApi';
 
-jest.mock('../usersApi');
+jest.mock('../../api/usersApi');
 
 function openLogin(onLogin) {
   render(<ThemeProvider theme={theme}><MemoryRouter initialEntries={['/login']}><Routes>

@@ -3,7 +3,7 @@ import { styled, Button, Dialog, DialogTitle, DialogContent, DialogActions, Icon
 import PropTypes from 'prop-types';
 import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
-import theme from '../theme';
+import theme from '../configuration/theme';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {

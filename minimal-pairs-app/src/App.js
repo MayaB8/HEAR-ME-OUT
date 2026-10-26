@@ -1,6 +1,6 @@
 
 // 2ND ATTEMPT
-import './App.css';
+import './styles/App.css';
 import React, { useEffect, useState } from 'react';
 //import { Button, Typography, AppBar, Toolbar, IconButton, Menu, MenuItem } from '@mui/material';
 //import MenuIcon from '@mui/icons-material/Menu';
@@ -10,16 +10,16 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 //import Replay from '@mui/icons-material/ReplayRounded';
 //import Next from '@mui/icons-material/ArrowBackTwoTone'; // ArrowBackIosTwoTone // ArrowBackTwoTone
 import Home from './pages/Home';
-import ExercisePage from './pages/ExercisePage';
+import ExercisePage from './pages/exercises/ExercisePage';
 import GamesOptionsPage from './pages/GamesOptionsPage';
-import ExerciseOptionsPage from './pages/ExerciseOptionsPage';
+import ExerciseOptionsPage from './pages/exercises/ExerciseOptionsPage';
 import HelpPage from './pages/HelpPage';
 import AboutPage from './pages/AboutPage';
-import TicTacToeGame from './pages/Games/TicTacToe/Game';
-import Toolbar from './component/Toolbar';
-import LoginPage from './pages/LoginPage';
-import ChildrenPage from './pages/ChildrenPage';
-import { getCurrentUser, logoutUser } from './usersApi';
+import TicTacToeGame from './pages/games/tic-tac-toe/Game';
+import Toolbar from './components/Toolbar';
+import LoginPage from './pages/authentication/LoginPage';
+import ChildrenPage from './pages/children/ChildrenPage';
+import { getCurrentUser, logoutUser } from './api/usersApi';
 //import Contact from './component/Contact';
 
 export default function App() {

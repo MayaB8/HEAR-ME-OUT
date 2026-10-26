@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from '../theme';
-import Toolbar from './Toolbar';
+import theme from '../../configuration/theme';
+import Toolbar from '../../components/Toolbar';
 
 function openToolbar(user = null, onLogout = jest.fn(), initialPath = '/') {
   render(<ThemeProvider theme={theme}><MemoryRouter initialEntries={[initialPath]}>

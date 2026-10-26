@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { Button, Grid, Paper, Typography } from '@mui/material';
-import PageBg from './../../../images/pagesBg/skyAndCloudsBg.png';
-import xImage from './../../../images/games/Ximg.png';
-import oImage from './../../../images/games/Oimg.png';
+import PageBg from '../../../assets/images/page-backgrounds/skyAndCloudsBg.png';
+import xImage from '../../../assets/images/games/Ximg.png';
+import oImage from '../../../assets/images/games/Oimg.png';
 
 const TicTacToeGame = () => {
     const theme = useTheme();

@@ -1,11 +1,11 @@
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from '../theme';
-import ExerciseOptionsPage from './ExerciseOptionsPage';
-import { getChildren } from '../usersApi';
+import theme from '../../configuration/theme';
+import ExerciseOptionsPage from '../../pages/exercises/ExerciseOptionsPage';
+import { getChildren } from '../../api/usersApi';
 
-jest.mock('../usersApi', () => ({ getChildren: jest.fn() }));
+jest.mock('../../api/usersApi', () => ({ getChildren: jest.fn() }));
 const clinician = { id: 7, username: 'maya' };
 const child = { id: 12, first_name: 'נועה', last_name: 'לוי', child_code: 'C12' };
 
@@ -48,6 +48,7 @@ test('loads children and passes the selected numeric child ID to the exercise', 
   fireEvent.click(screen.getByRole('button', { name: 'התחלת תרגול' }));
   const state = JSON.parse((await screen.findByTestId('exercise-state')).textContent);
   expect(state.childId).toBe(12);
+  expect(state.childName).toBe('נועה לוי');
   expect(getChildren).toHaveBeenCalledTimes(1);
 });
 
@@ -91,4 +92,45 @@ test('changing clinician clears selection and ignores the previous clinician res
   expect(screen.queryByText('ללא בחירת ילד')).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: 'התחלת תרגול' }));
   expect(JSON.parse((await screen.findByTestId('exercise-state')).textContent).childId).toBeNull();
+});
+
+async function chooseSetting(index, name) {
+  await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
+  fireEvent.mouseDown(screen.getAllByRole('combobox')[index]);
+  fireEvent.click(await screen.findByRole('option', { name }));
+  await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
+}
+
+test('changing sound pair preserves a supported position and the selected voice', async () => {
+  render(<Page />);
+  await chooseSetting(2, 'סוף');
+  await chooseSetting(3, 'אישה');
+  await chooseSetting(1, /ס-צ/);
+  expect(screen.getAllByRole('combobox')[2]).toHaveTextContent('סוף');
+  fireEvent.click(screen.getByRole('button', { name: 'התחלת תרגול' }));
+  expect(JSON.parse((await screen.findByTestId('exercise-state')).textContent)).toEqual(expect.objectContaining({
+    letters: 'ס-צ', placeInWord: 'end', voice: 'אישה',
+  }));
+});
+
+test('changing sound pair resets only an unsupported position', async () => {
+  render(<Page />);
+  await chooseSetting(2, 'סוף');
+  await chooseSetting(1, /ת,ט-צ/);
+  expect(screen.getAllByRole('combobox')[2]).toHaveTextContent('הכל');
+  await chooseSetting(2, 'אמצע');
+  await chooseSetting(1, /ס-צ/);
+  expect(screen.getAllByRole('combobox')[2]).toHaveTextContent('אמצע');
+});
+
+test('reselecting a category keeps valid settings; changing category preserves position', async () => {
+  render(<Page />);
+  await chooseSetting(1, /ס-צ/);
+  await chooseSetting(2, 'סוף');
+  await chooseSetting(0, 'אופן חיתוך');
+  expect(screen.getAllByRole('combobox')[1]).toHaveTextContent('ס-צ');
+  expect(screen.getAllByRole('combobox')[2]).toHaveTextContent('סוף');
+  await chooseSetting(0, 'קוליות');
+  expect(screen.getAllByRole('combobox')[1]).toHaveTextContent('הכל');
+  expect(screen.getAllByRole('combobox')[2]).toHaveTextContent('סוף');
 });
